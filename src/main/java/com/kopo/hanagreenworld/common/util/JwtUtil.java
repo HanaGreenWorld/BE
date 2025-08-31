@@ -23,15 +23,15 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(jwtConfig.getSecret().getBytes());
     }
 
-    public String generateAccessToken(String memberId, String email) {
+    public String generateAccessToken(Long memberId, String email) {
         return generateToken(memberId, email, jwtConfig.getAccessTokenValidityInMinutes() * 60 * 1000);
     }
 
-    public String generateRefreshToken(String memberId, String email) {
+    public String generateRefreshToken(Long memberId, String email) {
         return generateToken(memberId, email, jwtConfig.getRefreshTokenValidityInDays() * 24 * 60 * 60 * 1000);
     }
 
-    private String generateToken(String memberId, String email, long expirationTime) {
+    private String generateToken(Long memberId, String email, long expirationTime) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationTime);
 
@@ -60,9 +60,9 @@ public class JwtUtil {
         }
     }
 
-    public String getMemberIdFromToken(String token) {
+    public Long getMemberIdFromToken(String token) {
         Claims claims = parseToken(token);
-        return claims.get("memberId", String.class);
+        return claims.get("memberId", Long.class);
     }
 
     public String getEmailFromToken(String token) {

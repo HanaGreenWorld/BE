@@ -25,6 +25,12 @@ public class Team extends DateTimeEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "total_team_points")
+    private Long totalTeamPoints = 0L;
+    
+    @Column(name = "current_team_points")
+    private Long currentTeamPoints = 0L;
+
     // 팀장 ID만 참조 (순환 참조 방지)
     @Column(name = "leader_id", nullable = false)
     private Long leaderId;

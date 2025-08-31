@@ -20,6 +20,12 @@ public enum ErrorCode {
     UNAUTHORIZED_REDIRECT_URI(400, "AU_003", "인증되지 않은 REDIRECT_URI입니다."),
     BAD_LOGIN(400, "AU_004", "잘못된 아이디 또는 패스워드입니다."),
     INVALID_PASSWORD(400, "AU_005", "잘못된 패스워드입니다."),
+    INACTIVE_ACCOUNT(400, "AU_006", "비활성화된 계정입니다."),
+    
+    // 원큐씨앗 관련 에러
+    INSUFFICIENT_ECO_SEEDS(400, "ES_001", "보유한 원큐씨앗이 부족합니다."),
+    INVALID_CONVERSION_AMOUNT(400, "ES_002", "전환 가능한 원큐씨앗 범위를 벗어났습니다."),
+    DAILY_CONVERSION_LIMIT_EXCEEDED(400, "ES_003", "일일 전환 한도를 초과했습니다."),
     ;
 
     private final int status;

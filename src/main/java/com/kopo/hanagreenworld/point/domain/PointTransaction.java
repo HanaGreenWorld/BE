@@ -28,7 +28,7 @@ public class PointTransaction extends DateTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "transaction_type", nullable = false)
-    private TransactionType transactionType;
+    private PointTransactionType pointTransactionType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false)
@@ -46,16 +46,12 @@ public class PointTransaction extends DateTimeEntity {
     @Column(name = "occurred_at", nullable = false)
     private LocalDateTime occurredAt;
 
-    public enum TransactionType {
-        EARN, USE
-    }
-
     @Builder
-    public PointTransaction(Member member, TransactionType transactionType, PointCategory category,
+    public PointTransaction(Member member, PointTransactionType pointTransactionType, PointCategory category,
                             String description, Integer pointsAmount, Long balanceAfter,
                             LocalDateTime occurredAt) {
         this.member = member;
-        this.transactionType = transactionType;
+        this.pointTransactionType = pointTransactionType;
         this.category = category;
         this.description = description;
         this.pointsAmount = pointsAmount;

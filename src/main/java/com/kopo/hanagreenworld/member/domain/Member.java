@@ -1,5 +1,6 @@
 package com.kopo.hanagreenworld.member.domain;
 
+import com.kopo.hanagreenworld.common.domain.DateTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -7,20 +8,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "members")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member {
+public class Member extends DateTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long memberId;
 
     @Column(unique = true, nullable = false)
-    private String memberId;
+    private String loginId;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -42,26 +41,12 @@ public class Member {
     @Column(nullable = false)
     private MemberStatus status = MemberStatus.ACTIVE;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private MemberProfile memberProfile;
 
     @Builder
-    public Member(String memberId, String email, String password, String name, String phoneNumber, MemberRole role, MemberStatus status) {
-        this.memberId = memberId;
+    public Member(String loginId, String email, String password, String name, String phoneNumber, MemberRole role, MemberStatus status) {
+        this.loginId = loginId;
         this.email = email;
         this.password = password;
         this.name = name;

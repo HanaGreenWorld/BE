@@ -29,7 +29,7 @@ public class MemberController {
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "새로운 회원을 등록합니다.")
     public ResponseEntity<AuthResponse> signup(@Valid @RequestBody SignupRequest request) {
-        log.info("회원가입 요청: {}", request.getMemberId());
+        log.info("회원가입 요청: {}", request.getLoginId());
         AuthResponse response = memberService.signup(request);
         return ResponseEntity.ok(response);
     }
@@ -37,7 +37,7 @@ public class MemberController {
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "회원 로그인을 처리합니다.")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        log.info("로그인 요청: {}", request.getMemberId());
+        log.info("로그인 요청: {}", request.getLoginId());
         AuthResponse response = memberService.login(request);
         return ResponseEntity.ok(response);
     }
@@ -63,7 +63,7 @@ public class MemberController {
         try {
             Member member = SecurityUtil.getCurrentMember();
             Map<String, Object> userInfo = new HashMap<>();
-            userInfo.put("memberId", member.getMemberId());
+            userInfo.put("loginId", member.getLoginId());
             userInfo.put("email", member.getEmail());
             userInfo.put("name", member.getName());
             userInfo.put("role", member.getRole());

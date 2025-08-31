@@ -34,7 +34,7 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
         // Authorization 헤더가 없으면 자동으로 테스트 사용자로 로그인
         String authorization = request.getHeader("Authorization");
         if (!StringUtils.hasText(authorization)) {
-            Member testMember = memberRepository.findByMemberId("testuser").orElse(null);
+            Member testMember = memberRepository.findByLoginId("testuser").orElse(null);
             
             if (testMember != null) {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

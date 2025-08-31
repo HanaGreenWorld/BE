@@ -38,12 +38,12 @@ public class EcoMerchant extends DateTimeEntity {
     private MerchantCategory category;
 
     public enum MerchantCategory {
-        ECO_FOOD("친환경 식품/매장", "/assets/hana3dIcon/hanaIcon3d_105.png"),
-        EV_CHARGING("전기차 충전", "/assets/hana3dIcon/hanaIcon3d_29.png"),
-        RECYCLING_STORE("재활용/제로웨이스트", "/assets/zero_waste.png"),
-        GREEN_BEAUTY("친환경 뷰티", "/assets/hana3dIcon/hanaIcon3d_4_119.png"),
-        ECO_SHOPPING("친환경 쇼핑", "/assets/hana3dIcon/hanaIcon3d_107.png"),
-        ORGANIC_CAFE("유기농 카페", "/assets/hana3dIcon/hanaIcon3d_4_89.png");
+        ECO_FOOD("친환경 식품/매장", "/static/assets/hana3dIcon/hanaIcon3d_105.png"),
+        EV_CHARGING("전기차 충전", "/static/assets/hana3dIcon/hanaIcon3d_29.png"),
+        RECYCLING_STORE("재활용/제로웨이스트", "/static/assets/zero_waste.png"),
+        GREEN_BEAUTY("친환경 뷰티", "/static/assets/hana3dIcon/hanaIcon3d_4_119.png"),
+        ECO_SHOPPING("친환경 쇼핑", "/static/assets/hana3dIcon/hanaIcon3d_107.png"),
+        ORGANIC_CAFE("유기농 카페", "/static/assets/hana3dIcon/hanaIcon3d_4_89.png");
         
         private final String displayName;
         private final String imageUrl;

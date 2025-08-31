@@ -26,7 +26,7 @@ public class SecurityUtil {
         }
     }
 
-    public static String getCurrentMemberId() {
+    public static Long getCurrentMemberId() {
         return getCurrentMember().getMemberId();
     }
 

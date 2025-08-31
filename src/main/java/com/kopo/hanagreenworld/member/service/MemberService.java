@@ -1,6 +1,8 @@
 package com.kopo.hanagreenworld.member.service;
 
 import com.kopo.hanagreenworld.common.util.JwtUtil;
+import com.kopo.hanagreenworld.common.exception.BusinessException;
+import com.kopo.hanagreenworld.common.exception.ErrorCode;
 import com.kopo.hanagreenworld.member.domain.Member;
 import com.kopo.hanagreenworld.member.dto.AuthResponse;
 import com.kopo.hanagreenworld.member.dto.LoginRequest;
@@ -24,17 +26,17 @@ public class MemberService {
 
     public AuthResponse signup(SignupRequest request) {
         // 중복 검사
-        if (memberRepository.existsByMemberId(request.getMemberId())) {
-            throw new RuntimeException("이미 존재하는 아이디입니다.");
+        if (memberRepository.existsByLoginId(request.getLoginId())) {
+            throw new BusinessException(ErrorCode.DUPLICATED_USERNAME);
         }
 
         if (memberRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("이미 존재하는 이메일입니다.");
+            throw new BusinessException(ErrorCode.DUPLICATED_EMAIL);
         }
 
         // 회원 생성
         Member member = Member.builder()
-                .memberId(request.getMemberId())
+                .loginId(request.getLoginId())
                 .email(request.getEmail())
                 .password(request.getPassword())
                 .name(request.getName())
@@ -65,17 +67,17 @@ public class MemberService {
 
     public AuthResponse login(LoginRequest request) {
         // 회원 조회
-        Member member = memberRepository.findByMemberId(request.getMemberId())
-                .orElseThrow(() -> new RuntimeException("아이디 또는 비밀번호가 올바르지 않습니다."));
+        Member member = memberRepository.findByLoginId(request.getLoginId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.BAD_LOGIN));
 
         // 비밀번호 검증
         if (!member.checkPassword(request.getPassword(), passwordEncoder)) {
-            throw new RuntimeException("아이디 또는 비밀번호가 올바르지 않습니다.");
+            throw new BusinessException(ErrorCode.BAD_LOGIN);
         }
 
         // 계정 상태 확인
         if (member.getStatus() != Member.MemberStatus.ACTIVE) {
-            throw new RuntimeException("비활성화된 계정입니다.");
+            throw new BusinessException(ErrorCode.INACTIVE_ACCOUNT);
         }
 
         // JWT 토큰 생성
@@ -95,7 +97,7 @@ public class MemberService {
     public AuthResponse refreshToken(String refreshToken) {
         // 토큰 검증
         if (!jwtUtil.validateToken(refreshToken)) {
-            throw new RuntimeException("유효하지 않은 토큰입니다.");
+            throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
         }
 
         if (jwtUtil.isTokenExpired(refreshToken)) {
@@ -103,10 +105,10 @@ public class MemberService {
         }
 
         // 회원 정보 조회
-        String memberId = jwtUtil.getMemberIdFromToken(refreshToken);
+        Long memberId = jwtUtil.getMemberIdFromToken(refreshToken);
         String email = jwtUtil.getEmailFromToken(refreshToken);
 
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
 
         // 새로운 토큰 생성
