@@ -8,16 +8,3 @@ spring:
       com.kopo.hanagreenworld: DEBUG
       org.springframework.security: DEBUG
       org.springframework.web: DEBUG
-
-# JWT 설정
-jwt:
-  secret: hanaGreenWorldSecretKeyForJWTTokenGeneration2024
-  access-token-validity-in-minutes: 1440  # 24시간
-  refresh-token-validity-in-days: 30
-
-# Swagger 설정
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
-  api-docs:
-    path: /v3/api-docs
