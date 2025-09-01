@@ -54,7 +54,10 @@ public class PointTransaction extends DateTimeEntity {
         this.pointTransactionType = pointTransactionType;
         this.category = category;
         this.description = description;
-        this.pointsAmount = pointsAmount;
+        // USE와 CONVERT 타입일 때는 음수로 저장 (부호 통일)
+        this.pointsAmount = (pointTransactionType == PointTransactionType.USE || 
+                           pointTransactionType == PointTransactionType.CONVERT) ? 
+                           -Math.abs(pointsAmount) : Math.abs(pointsAmount);
         this.balanceAfter = balanceAfter;
         this.occurredAt = occurredAt == null ? LocalDateTime.now() : occurredAt;
     }

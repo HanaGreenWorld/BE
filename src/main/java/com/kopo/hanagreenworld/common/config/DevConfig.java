@@ -55,7 +55,7 @@ public class DevConfig {
                 memberProfileRepository.save(profile);
                 
                 // 초기 원큐씨앗 설정 (345개)
-                profile.updatePoints(345L);
+                profile.updateCurrentPoints(345L);
                 memberProfileRepository.save(profile);
                 
                 log.info("개발용 테스트 계정이 생성되었습니다: testuser / test1234!");
@@ -130,7 +130,7 @@ public class DevConfig {
                     // 하나머니로 전환
                     PointTransaction conversionTransaction = PointTransaction.builder()
                             .member(testMember)
-                            .pointTransactionType(PointTransactionType.USE)
+                            .pointTransactionType(PointTransactionType.CONVERT)
                             .category(PointCategory.HANA_MONEY_CONVERSION)
                             .description("하나머니로 전환: 20개")
                             .pointsAmount(20)

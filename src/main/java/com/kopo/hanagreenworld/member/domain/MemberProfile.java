@@ -34,20 +34,16 @@ public class MemberProfile extends DateTimeEntity {
     @JoinColumn(name = "next_level_id")
     private EcoLevel nextLevel;
 
-    @Column(name = "total_points")
-    private Long totalPoints = 0L;
-
+    // 현재 보유 포인트 (필수 - 실시간 조회 성능을 위해 유지)
     @Column(name = "current_points")
     private Long currentPoints = 0L;
 
+    // 환경 관련 통계 (point_transactions와 별개)
     @Column(name = "total_carbon_saved")
     private Double totalCarbonSaved = 0.0;
 
     @Column(name = "total_activities_count")
     private Integer totalActivitiesCount = 0;
-
-    @Column(name = "current_month_points")
-    private Long currentMonthPoints = 0L;
     
     @Column(name = "current_month_carbon_saved")
     private Double currentMonthCarbonSaved = 0.0;
@@ -60,6 +56,9 @@ public class MemberProfile extends DateTimeEntity {
 
     @Column(name = "points_to_next_level")
     private Long pointsToNextLevel = 0L;
+
+    @Column(name = "hana_money")
+    private Long hanaMoney = 0L;
 
     @Builder
     public MemberProfile(Member member, String nickname, EcoLevel currentLevel, EcoLevel nextLevel) {
@@ -74,10 +73,9 @@ public class MemberProfile extends DateTimeEntity {
         this.nextLevel = nextLevel;
     }
 
-    public void updatePoints(Long points) {
+    // 포인트 업데이트 (현재 보유만 관리, 총적립/총사용은 point_transactions에서 계산)
+    public void updateCurrentPoints(Long points) {
         this.currentPoints += points;
-        this.totalPoints += points;
-        this.currentMonthPoints += points;
     }
 
     public void updateCarbonSaved(Double carbonSaved) {
@@ -95,8 +93,11 @@ public class MemberProfile extends DateTimeEntity {
         this.pointsToNextLevel = pointsToNext;
     }
 
+    public void updateHanaMoney(Long amount) {
+        this.hanaMoney += amount;
+    }
+
     public void resetCurrentMonthData() {
-        this.currentMonthPoints = 0L;
         this.currentMonthCarbonSaved = 0.0;
         this.currentMonthActivitiesCount = 0;
     }
