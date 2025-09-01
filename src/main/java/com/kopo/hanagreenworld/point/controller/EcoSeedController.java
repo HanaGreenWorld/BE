@@ -23,7 +23,7 @@ import java.util.HashMap;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/eco-seeds")
+@RequestMapping("/eco-seeds")
 @RequiredArgsConstructor
 @Tag(name = "원큐씨앗 API", description = "원큐씨앗 적립, 사용, 전환 API")
 public class EcoSeedController {
@@ -100,11 +100,12 @@ public class EcoSeedController {
         // 걸음 수에 따른 원큐씨앗 계산 (1000걸음 = 1원큐씨앗)
         int points = steps / 1000;
         if (points == 0 && steps > 0) points = 1; // 최소 1개
-        
-        EcoSeedEarnRequest request = new EcoSeedEarnRequest();
-        request.setCategory(PointCategory.WALKING);
-        request.setPointsAmount(points);
-        request.setDescription(steps + "걸음으로 원큐씨앗 적립");
+
+        EcoSeedEarnRequest request = EcoSeedEarnRequest.builder()
+                .category(PointCategory.WALKING)
+                .pointsAmount(points)
+                .description(steps + "걸음으로 원큐씨앗 적립")
+                .build();
         
         EcoSeedResponse response = ecoSeedService.earnEcoSeeds(request);
         return ResponseEntity.ok(response);
@@ -114,11 +115,13 @@ public class EcoSeedController {
     @Operation(summary = "퀴즈로 원큐씨앗 적립", description = "퀴즈 완료로 원큐씨앗을 적립합니다.")
     public ResponseEntity<EcoSeedResponse> earnFromQuiz(@RequestParam String quizType) {
         log.info("퀴즈로 원큐씨앗 적립 요청: {}", quizType);
-        
-        EcoSeedEarnRequest request = new EcoSeedEarnRequest();
-        request.setCategory(PointCategory.DAILY_QUIZ);
-        request.setPointsAmount(5); // 퀴즈당 5개
-        request.setDescription(quizType + " 퀴즈 완료로 원큐씨앗 적립");
+
+
+        EcoSeedEarnRequest request = EcoSeedEarnRequest.builder()
+                .category(PointCategory.DAILY_QUIZ)
+                .pointsAmount(5)
+                .description(quizType + " 퀴즈 완료로 원큐씨앗 적립")
+                .build();
         
         EcoSeedResponse response = ecoSeedService.earnEcoSeeds(request);
         return ResponseEntity.ok(response);
@@ -128,11 +131,12 @@ public class EcoSeedController {
     @Operation(summary = "챌린지로 원큐씨앗 적립", description = "챌린지 완료로 원큐씨앗을 적립합니다.")
     public ResponseEntity<EcoSeedResponse> earnFromChallenge(@RequestParam String challengeName) {
         log.info("챌린지로 원큐씨앗 적립 요청: {}", challengeName);
-        
-        EcoSeedEarnRequest request = new EcoSeedEarnRequest();
-        request.setCategory(PointCategory.ECO_CHALLENGE);
-        request.setPointsAmount(10); // 챌린지당 10개
-        request.setDescription(challengeName + " 챌린지 완료로 원큐씨앗 적립");
+
+        EcoSeedEarnRequest request = EcoSeedEarnRequest.builder()
+                .category(PointCategory.ECO_CHALLENGE)
+                .pointsAmount(10)
+                .description(challengeName + " 챌린지 완료로 원큐씨앗 적립")
+                .build();
         
         EcoSeedResponse response = ecoSeedService.earnEcoSeeds(request);
         return ResponseEntity.ok(response);
