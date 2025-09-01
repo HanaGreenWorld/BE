@@ -3,6 +3,7 @@ package com.kopo.hanagreenworld.point.dto;
 import com.kopo.hanagreenworld.point.domain.PointCategory;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,4 +19,11 @@ public class EcoSeedEarnRequest {
     private Integer pointsAmount;
     
     private String description;
+
+    @Builder
+    public EcoSeedEarnRequest(PointCategory category, Integer pointsAmount, String description) {
+        this.category = category;
+        this.pointsAmount = pointsAmount;
+        this.description = description;
+    }
 }

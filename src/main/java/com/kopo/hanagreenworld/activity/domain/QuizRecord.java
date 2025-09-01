@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 import com.kopo.hanagreenworld.member.domain.Member;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +16,7 @@ import java.time.LocalDateTime;
 @Table(name = "quiz_records")
 @Getter
 @NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class QuizRecord {
 
     @Id
@@ -23,6 +26,7 @@ public class QuizRecord {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
+    @JsonIgnore
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -49,5 +53,9 @@ public class QuizRecord {
         this.isCorrect = selectedAnswer.equals(quiz.getCorrectAnswer());
         this.pointsAwarded = this.isCorrect ? quiz.getPointsReward() : 0;
         this.activityDate = LocalDateTime.now();
+    }
+
+    public void updatePointsAwarded(Integer pointsAwarded) {
+        this.pointsAwarded = pointsAwarded;
     }
 }

@@ -21,6 +21,7 @@ configurations {
 }
 
 repositories {
+	google()
 	mavenCentral()
 }
 
@@ -35,7 +36,7 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	// swagger
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.0'
     
     // 환경변수 관리
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -47,6 +48,12 @@ dependencies {
     
     // Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    
+    // WebClient for HTTP requests
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	// Gemini API 클라이언트
+	implementation 'com.google.genai:google-genai:1.0.0'
 }
 
 tasks.named('test') {

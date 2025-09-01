@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import com.kopo.hanagreenworld.common.domain.DateTimeEntity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "quizzes")
 @Getter
 @NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Quiz extends DateTimeEntity {
 
     @Id

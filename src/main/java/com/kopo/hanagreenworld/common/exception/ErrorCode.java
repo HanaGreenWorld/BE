@@ -26,6 +26,12 @@ public enum ErrorCode {
     INSUFFICIENT_ECO_SEEDS(400, "ES_001", "보유한 원큐씨앗이 부족합니다."),
     INVALID_CONVERSION_AMOUNT(400, "ES_002", "전환 가능한 원큐씨앗 범위를 벗어났습니다."),
     DAILY_CONVERSION_LIMIT_EXCEEDED(400, "ES_003", "일일 전환 한도를 초과했습니다."),
+
+    // 퀴즈 에러
+    QUIZ_GENERATION_FAILED(400, "QZ_001", "퀴즈를 생성하는 것에 실패하였습니다."),
+    QUIZ_NOT_FOUND(400, "QZ_002", "요청한 퀴즈를 찾을 수 없습니다."),
+    QUIZ_ALREADY_ATTEMPTED(400, "QZ_003", "오늘 이미 퀴즈에 참여하였습니다."),
+    QUIZ_NOT_ATTEMPTED(400, "QZ_004", "오늘 아직 퀴즈에 참여하지 않았습니다.")
     ;
 
     private final int status;
