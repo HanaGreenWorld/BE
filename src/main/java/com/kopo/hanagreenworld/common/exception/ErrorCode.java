@@ -31,7 +31,12 @@ public enum ErrorCode {
     QUIZ_GENERATION_FAILED(400, "QZ_001", "퀴즈를 생성하는 것에 실패하였습니다."),
     QUIZ_NOT_FOUND(400, "QZ_002", "요청한 퀴즈를 찾을 수 없습니다."),
     QUIZ_ALREADY_ATTEMPTED(400, "QZ_003", "오늘 이미 퀴즈에 참여하였습니다."),
-    QUIZ_NOT_ATTEMPTED(400, "QZ_004", "오늘 아직 퀴즈에 참여하지 않았습니다.")
+    QUIZ_NOT_ATTEMPTED(400, "QZ_004", "오늘 아직 퀴즈에 참여하지 않았습니다."),
+
+    // 걸음수 에러
+    CONSENT_REQUIRED(403, "W_001", "걷기 측정에 동의하지 않았습니다."),
+    ALREADY_SUBMITTED(409, "W_002", "해당 날짜에 이미 걸음수를 제출했습니다."),
+    INVALID_STEPS(400, "W_003", "유효하지 않은 걸음수입니다."),
     ;
 
     private final int status;
