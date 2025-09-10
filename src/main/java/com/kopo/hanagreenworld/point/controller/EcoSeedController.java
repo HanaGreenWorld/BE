@@ -46,6 +46,53 @@ public class EcoSeedController {
         return ResponseEntity.ok(profile);
     }
 
+    @GetMapping("/stats")
+    @Operation(summary = "사용자 통계 정보 조회", description = "현재 사용자의 레벨, 탄소 절약량 등 통계 정보를 조회합니다.")
+    public ResponseEntity<Map<String, Object>> getUserStats() {
+        try {
+            log.info("사용자 통계 정보 조회 요청");
+            Map<String, Object> stats = ecoSeedService.getUserStats();
+            log.info("사용자 통계 정보 조회 성공");
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            log.error("사용자 통계 정보 조회 실패: {}", e.getMessage(), e);
+            
+            // 에러 시 기본값 반환
+            Map<String, Object> defaultStats = new HashMap<>();
+            defaultStats.put("totalPoints", 0L);
+            defaultStats.put("totalCarbonSaved", 0.0);
+            defaultStats.put("totalActivities", 0);
+            defaultStats.put("monthlyPoints", 0L);
+            defaultStats.put("monthlyCarbonSaved", 0.0);
+            defaultStats.put("monthlyActivities", 0);
+            
+            // 기본 레벨 정보
+            Map<String, Object> currentLevel = new HashMap<>();
+            currentLevel.put("id", "beginner");
+            currentLevel.put("name", "친환경 새내기");
+            currentLevel.put("description", "🌱 환경 보호 여정을 시작했어요!");
+            currentLevel.put("requiredPoints", 0L);
+            currentLevel.put("icon", "🌱");
+            currentLevel.put("color", "#10B981");
+            defaultStats.put("currentLevel", currentLevel);
+            
+            Map<String, Object> nextLevel = new HashMap<>();
+            nextLevel.put("id", "intermediate");
+            nextLevel.put("name", "친환경 실천가");
+            nextLevel.put("description", "🌿 환경 보호를 실천하고 있어요!");
+            nextLevel.put("requiredPoints", 1000L);
+            nextLevel.put("icon", "🌿");
+            nextLevel.put("color", "#059669");
+            defaultStats.put("nextLevel", nextLevel);
+            
+            defaultStats.put("progressToNextLevel", 0.0);
+            defaultStats.put("pointsToNextLevel", 1000L);
+            
+            log.info("기본 통계 정보 반환");
+            return ResponseEntity.ok(defaultStats);
+        }
+    }
+
     @PostMapping("/earn")
     @Operation(summary = "원큐씨앗 적립", description = "원큐씨앗을 적립합니다.")
     public ResponseEntity<EcoSeedResponse> earnEcoSeeds(@Valid @RequestBody EcoSeedEarnRequest request) {

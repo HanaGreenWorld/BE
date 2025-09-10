@@ -1,10 +1,27 @@
+# 개발 환경 설정
 spring:
-  profiles:
-    active: dev
-  
-  # 개발 환경 로깅 설정
-  logging:
-    level:
-      com.kopo.hanagreenworld: DEBUG
-      org.springframework.security: DEBUG
-      org.springframework.web: DEBUG
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
+# 개발 환경 로깅 설정
+logging:
+  level:
+    com.kopo.hanagreenworld: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.data.redis: DEBUG
+
+# 개발 환경 자동 로그인 설정
+app:
+  dev:
+    auto-login:
+      enabled: true
+      login-id: testuser

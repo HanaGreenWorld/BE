@@ -1,11 +1,16 @@
 spring:
+  profiles:
+    active: dev
+  
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
   config:
     import: application-datasource.yml, application-setting.yml, application-dev.yml
 
+server:
+  address: 0.0.0.0

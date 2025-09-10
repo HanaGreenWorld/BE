@@ -2,6 +2,7 @@ package com.kopo.hanagreenworld.member.domain;
 
 import jakarta.persistence.*;
 import com.kopo.hanagreenworld.common.domain.DateTimeEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ public class MemberProfile extends DateTimeEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
+    @JsonIgnore
     private Member member;
 
     @Column
@@ -65,9 +67,9 @@ public class MemberProfile extends DateTimeEntity {
 
     // 레벨 enum 정의
     public enum EcoLevel {
-        BEGINNER("초보자", 0L, 1000L),
-        INTERMEDIATE("중급자", 1000L, 5000L),
-        EXPERT("전문가", 5000L, null);
+        BEGINNER("친환경 새내기", 0L, 1000L),
+        INTERMEDIATE("친환경 실천가", 1000L, 5000L),
+        EXPERT("친환경 전문가", 5000L, null);
 
         private final String displayName;
         private final Long minPoints;
@@ -82,6 +84,7 @@ public class MemberProfile extends DateTimeEntity {
         public String getDisplayName() { return displayName; }
         public Long getMinPoints() { return minPoints; }
         public Long getMaxPoints() { return maxPoints; }
+        public Long getRequiredPoints() { return maxPoints != null ? maxPoints : Long.MAX_VALUE; }
     }
 
     @Builder

@@ -213,4 +213,156 @@ public class EcoSeedService {
         
         return response;
     }
+
+    /**
+     * 사용자 통계 정보 조회 (레벨, 탄소 절약량 등)
+     */
+    @Transactional(readOnly = true)
+    public Map<String, Object> getUserStats() {
+        Long memberId = SecurityUtil.getCurrentMemberId();
+        MemberProfile profile = getOrCreateMemberProfile(memberId);
+        
+        // point_transactions에서 실시간 계산
+        Long totalEarned = pointTransactionRepository.sumEarnedPointsByMemberId(memberId);
+        Long currentMonthPoints = pointTransactionRepository.sumCurrentMonthEarnedPointsByMemberId(memberId);
+        
+        // 현재 레벨 계산 (포인트에 따라 동적으로 계산)
+        long currentPoints = totalEarned != null ? totalEarned : 0L;
+        MemberProfile.EcoLevel currentLevel = calculateCurrentLevel(currentPoints);
+        MemberProfile.EcoLevel nextLevel = getNextLevel(currentLevel);
+        
+        // 다음 레벨까지의 진행도 계산
+        double progressToNextLevel = 0.0;
+        if (nextLevel != null) {
+            long currentLevelMin = currentLevel.getMinPoints();
+            long nextLevelMin = nextLevel.getMinPoints();
+            long totalRange = nextLevelMin - currentLevelMin;
+            if (totalRange > 0) {
+                long userProgress = currentPoints - currentLevelMin;
+                progressToNextLevel = Math.min(1.0, Math.max(0.0, (double) userProgress / totalRange));
+            }
+        }
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("totalPoints", totalEarned != null ? totalEarned : 0L);
+        response.put("totalCarbonSaved", profile.getTotalCarbonSaved() != null ? profile.getTotalCarbonSaved() : 0.0);
+        response.put("totalActivities", profile.getTotalActivitiesCount() != null ? profile.getTotalActivitiesCount() : 0);
+        response.put("monthlyPoints", currentMonthPoints != null ? currentMonthPoints : 0L);
+        response.put("monthlyCarbonSaved", profile.getCurrentMonthCarbonSaved() != null ? profile.getCurrentMonthCarbonSaved() : 0.0);
+        response.put("monthlyActivities", profile.getCurrentMonthActivitiesCount() != null ? profile.getCurrentMonthActivitiesCount() : 0);
+        
+        // 현재 레벨 정보
+        Map<String, Object> currentLevelInfo = new HashMap<>();
+        currentLevelInfo.put("id", currentLevel.name().toLowerCase());
+        currentLevelInfo.put("name", currentLevel.getDisplayName());
+        currentLevelInfo.put("description", getLevelDescription(currentLevel));
+        currentLevelInfo.put("requiredPoints", currentLevel.getRequiredPoints());
+        currentLevelInfo.put("icon", getLevelIcon(currentLevel));
+        currentLevelInfo.put("color", getLevelColor(currentLevel));
+        response.put("currentLevel", currentLevelInfo);
+        
+        // 다음 레벨 정보
+        if (nextLevel != null) {
+            Map<String, Object> nextLevelInfo = new HashMap<>();
+            nextLevelInfo.put("id", nextLevel.name().toLowerCase());
+            nextLevelInfo.put("name", nextLevel.getDisplayName());
+            nextLevelInfo.put("description", getLevelDescription(nextLevel));
+            nextLevelInfo.put("requiredPoints", nextLevel.getRequiredPoints());
+            nextLevelInfo.put("icon", getLevelIcon(nextLevel));
+            nextLevelInfo.put("color", getLevelColor(nextLevel));
+            response.put("nextLevel", nextLevelInfo);
+        } else {
+            // 최고 레벨인 경우
+            Map<String, Object> nextLevelInfo = new HashMap<>();
+            nextLevelInfo.put("id", currentLevel.name().toLowerCase());
+            nextLevelInfo.put("name", currentLevel.getDisplayName());
+            nextLevelInfo.put("description", "최고 레벨에 도달했습니다! 🌟");
+            nextLevelInfo.put("requiredPoints", currentLevel.getRequiredPoints());
+            nextLevelInfo.put("icon", getLevelIcon(currentLevel));
+            nextLevelInfo.put("color", getLevelColor(currentLevel));
+            response.put("nextLevel", nextLevelInfo);
+        }
+        
+        response.put("progressToNextLevel", progressToNextLevel);
+        response.put("pointsToNextLevel", nextLevel != null ? Math.max(0, nextLevel.getMinPoints() - currentPoints) : 0L);
+        
+        return response;
+    }
+    
+    /**
+     * 포인트에 따른 현재 레벨 계산
+     */
+    private MemberProfile.EcoLevel calculateCurrentLevel(long points) {
+        if (points >= MemberProfile.EcoLevel.EXPERT.getMinPoints()) {
+            return MemberProfile.EcoLevel.EXPERT;
+        } else if (points >= MemberProfile.EcoLevel.INTERMEDIATE.getMinPoints()) {
+            return MemberProfile.EcoLevel.INTERMEDIATE;
+        } else {
+            return MemberProfile.EcoLevel.BEGINNER;
+        }
+    }
+    
+    /**
+     * 다음 레벨 계산
+     */
+    private MemberProfile.EcoLevel getNextLevel(MemberProfile.EcoLevel currentLevel) {
+        switch (currentLevel) {
+            case BEGINNER:
+                return MemberProfile.EcoLevel.INTERMEDIATE;
+            case INTERMEDIATE:
+                return MemberProfile.EcoLevel.EXPERT;
+            case EXPERT:
+                return null; // 최고 레벨
+            default:
+                return MemberProfile.EcoLevel.INTERMEDIATE;
+        }
+    }
+    
+    /**
+     * 레벨별 설명 반환
+     */
+    private String getLevelDescription(MemberProfile.EcoLevel level) {
+        switch (level) {
+            case BEGINNER:
+                return "🌱 환경 보호 여정을 시작했어요!";
+            case INTERMEDIATE:
+                return "🌿 환경 보호를 실천하고 있어요!";
+            case EXPERT:
+                return "🌳 환경 보호의 전문가가 되었어요!";
+            default:
+                return "🌱 환경 보호 여정을 시작했어요!";
+        }
+    }
+    
+    /**
+     * 레벨별 아이콘 반환
+     */
+    private String getLevelIcon(MemberProfile.EcoLevel level) {
+        switch (level) {
+            case BEGINNER:
+                return "🌱";
+            case INTERMEDIATE:
+                return "🌿";
+            case EXPERT:
+                return "🌳";
+            default:
+                return "🌱";
+        }
+    }
+    
+    /**
+     * 레벨별 색상 반환
+     */
+    private String getLevelColor(MemberProfile.EcoLevel level) {
+        switch (level) {
+            case BEGINNER:
+                return "#10B981";
+            case INTERMEDIATE:
+                return "#059669";
+            case EXPERT:
+                return "#047857";
+            default:
+                return "#10B981";
+        }
+    }
 }
