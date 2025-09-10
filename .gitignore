@@ -37,3 +37,7 @@ out/
 .vscode/
 
 .DS_Store
+
+challenge_images/
+
+.env
