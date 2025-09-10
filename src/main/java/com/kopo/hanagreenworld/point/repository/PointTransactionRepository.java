@@ -39,4 +39,19 @@ public interface PointTransactionRepository extends JpaRepository<PointTransacti
            "WHERE pt.member.memberId = :memberId AND pt.pointTransactionType = 'EARN' " +
            "AND YEAR(pt.occurredAt) = YEAR(CURRENT_DATE) AND MONTH(pt.occurredAt) = MONTH(CURRENT_DATE)")
     Long sumCurrentMonthEarnedPointsByMemberId(@Param("memberId") Long memberId);
+    
+    // 팀별 월간 포인트 합계
+    @Query("SELECT COALESCE(SUM(pt.pointsAmount), 0) FROM PointTransaction pt " +
+           "JOIN MemberTeam mt ON pt.member.memberId = mt.member.memberId " +
+           "WHERE mt.team.id = :teamId AND mt.isActive = true " +
+           "AND pt.pointTransactionType = 'EARN' " +
+           "AND DATE_FORMAT(pt.occurredAt, '%Y-%m') = :reportDate")
+    Long findMonthlyTeamPoints(@Param("teamId") Long teamId, @Param("reportDate") String reportDate);
+    
+    // 팀별 총 포인트 합계
+    @Query("SELECT COALESCE(SUM(pt.pointsAmount), 0) FROM PointTransaction pt " +
+           "JOIN MemberTeam mt ON pt.member.memberId = mt.member.memberId " +
+           "WHERE mt.team.id = :teamId AND mt.isActive = true " +
+           "AND pt.pointTransactionType = 'EARN'")
+    Long findTotalTeamPoints(@Param("teamId") Long teamId);
 }
