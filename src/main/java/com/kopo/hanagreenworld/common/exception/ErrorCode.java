@@ -37,6 +37,26 @@ public enum ErrorCode {
     CONSENT_REQUIRED(403, "W_001", "걷기 측정에 동의하지 않았습니다."),
     ALREADY_SUBMITTED(409, "W_002", "해당 날짜에 이미 걸음수를 제출했습니다."),
     INVALID_STEPS(400, "W_003", "유효하지 않은 걸음수입니다."),
+
+    // 챌린지 에러
+    CHALLENGE_NOT_FOUND(400, "CH_001", "요청한 챌린지를 찾을 수 없습니다."),
+    CHALLENGE_ALREADY_PARTICIPATED(400, "CH_002", "이미 참여한 챌린지입니다."),
+    CHALLENGE_ALREADY_PARTICIPATED_TODAY(400, "CH_003", "오늘 이미 참여한 챌린지입니다."),
+
+    // 팀 관련 에러
+    TEAM_NOT_FOUND(400, "TM_001", "팀을 찾을 수 없습니다."),
+    ALREADY_IN_TEAM(400, "TM_002", "이미 팀에 속해있습니다."),
+    LEADER_CANNOT_LEAVE(400, "TM_003", "팀장은 팀을 탈퇴할 수 없습니다."),
+    INVALID_INVITE_CODE(400, "TM_004", "유효하지 않은 초대 코드입니다."),
+    TEAM_NOT_ACTIVE(400, "TM_005", "비활성화된 팀입니다."),
+    TEAM_FULL(400, "TM_006", "팀원 수가 가득 찼습니다."),
+    UNAUTHORIZED(401, "AU_007", "인증이 필요합니다."),
+
+    // 채팅 관련 에러
+    TEAM_CHAT_DISABLED(400, "CH_001", "팀 채팅이 비활성화되어 있습니다."),
+    MESSAGE_NOT_FOUND(400, "CH_002", "메시지를 찾을 수 없습니다."),
+    MESSAGE_TOO_LONG(400, "CH_003", "메시지가 너무 깁니다."),
+    DAILY_MESSAGE_LIMIT_EXCEEDED(400, "CH_004", "일일 메시지 한도를 초과했습니다."),
     ;
 
     private final int status;
