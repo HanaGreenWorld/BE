@@ -37,9 +37,27 @@ public class MemberController {
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "회원 로그인을 처리합니다.")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        log.info("로그인 요청: {}", request.getLoginId());
-        AuthResponse response = memberService.login(request);
-        return ResponseEntity.ok(response);
+        log.info("=== 로그인 요청 시작 ===");
+        log.info("요청 URL: /auth/login");
+        log.info("요청 메서드: POST");
+        log.info("요청 헤더: Content-Type: application/json");
+        log.info("요청 바디: loginId={}, password={}", request.getLoginId(), request.getPassword() != null ? "***" : "null");
+        log.info("요청 시간: {}", java.time.LocalDateTime.now());
+        
+        try {
+            AuthResponse response = memberService.login(request);
+            log.info("=== 로그인 성공 ===");
+            log.info("응답 상태: 200 OK");
+            log.info("응답 바디: {}", response);
+            log.info("응답 시간: {}", java.time.LocalDateTime.now());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("=== 로그인 실패 ===");
+            log.error("에러 메시지: {}", e.getMessage());
+            log.error("에러 스택: ", e);
+            log.error("실패 시간: {}", java.time.LocalDateTime.now());
+            throw e;
+        }
     }
 
     @PostMapping("/refresh")
@@ -61,18 +79,29 @@ public class MemberController {
     @Operation(summary = "현재 사용자 정보", description = "현재 로그인된 사용자의 정보를 반환합니다.")
     public ResponseEntity<Map<String, Object>> getCurrentUser() {
         try {
+            log.info("현재 사용자 정보 조회 요청");
             Member member = SecurityUtil.getCurrentMember();
+            if (member == null) {
+                log.error("현재 인증된 사용자를 찾을 수 없습니다.");
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "인증된 사용자를 찾을 수 없습니다.");
+                return ResponseEntity.status(401).body(error);
+            }
+            
+            log.info("사용자 정보 조회 성공: {}", member.getMemberId());
+            
             Map<String, Object> userInfo = new HashMap<>();
             userInfo.put("loginId", member.getLoginId());
             userInfo.put("email", member.getEmail());
             userInfo.put("name", member.getName());
-            userInfo.put("role", member.getRole());
-            userInfo.put("status", member.getStatus());
+            userInfo.put("role", member.getRole().name());
+            userInfo.put("status", member.getStatus().name());
             return ResponseEntity.ok(userInfo);
         } catch (Exception e) {
+            log.error("사용자 정보 조회 실패: {}", e.getMessage(), e);
             Map<String, Object> error = new HashMap<>();
-            error.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(error);
+            error.put("error", "사용자 정보를 조회하는 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
         }
     }
 }

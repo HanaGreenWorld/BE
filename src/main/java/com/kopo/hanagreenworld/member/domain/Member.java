@@ -1,6 +1,7 @@
 package com.kopo.hanagreenworld.member.domain;
 
 import com.kopo.hanagreenworld.common.domain.DateTimeEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -42,6 +43,7 @@ public class Member extends DateTimeEntity {
     private MemberStatus status = MemberStatus.ACTIVE;
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private MemberProfile memberProfile;
 
     @Builder
