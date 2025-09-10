@@ -19,14 +19,21 @@ public class Challenge extends DateTimeEntity {
     @Column(name = "challenge_id")
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "challenge_code", length = 50, nullable = false, unique = true)
     private ChallengeCode code;
 
     public enum ChallengeCode {
         REUSABLE_BAG("장바구니 사용"),
+        REUSABLE_BAG_EXTENDED("친환경 장바구니 챌린지"),
         PLUGGING("플로깅"),
+        PLUGGING_MARATHON("플로깅 마라톤"),
+        TEAM_PLUGGING("팀 플로깅 대회"),
         WEEKLY_STEPS("주간 걸음수"),
+        DAILY_STEPS("만보 달성 챌린지"),
+        TEAM_WALKING("팀 걸음 수 경쟁"),
         NO_PLASTIC("일회용품 줄이기"),
+        TUMBLER_CHALLENGE("텀블러 사용 인증"),
         RECYCLE("분리수거");
         
         private final String displayName;

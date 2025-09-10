@@ -130,4 +130,12 @@ public class QuizService {
     public List<QuizRecord> getMemberQuizHistory(Long memberId) {
         return quizRecordRepository.findByMember_MemberIdOrderByActivityDateDesc(memberId);
     }
+
+    @Transactional(readOnly = true)
+    public Boolean hasParticipatedToday(Long memberId) {
+        LocalDateTime today = LocalDate.now().atStartOfDay();
+        LocalDateTime tomorrow = today.plusDays(1);
+        
+        return quizRecordRepository.existsByMember_MemberIdAndActivityDateBetween(memberId, today, tomorrow);
+    }
 }

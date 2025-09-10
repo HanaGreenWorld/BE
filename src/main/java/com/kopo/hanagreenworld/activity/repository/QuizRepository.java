@@ -13,3 +13,4 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
     @Query(value = "SELECT * FROM quizzes ORDER BY RAND() LIMIT 1", nativeQuery = true)
     Optional<Quiz> findRandomQuiz();
 }
+

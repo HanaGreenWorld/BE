@@ -70,4 +70,13 @@ public class QuizController {
         List<QuizRecord> history = quizService.getMemberQuizHistory(memberId);
         return ResponseEntity.ok(ApiResponse.success(history, "퀴즈 참여 이력을 조회했습니다."));
     }
+
+    @Operation(summary = "오늘 퀴즈 참여 여부 확인", description = "오늘 퀴즈에 참여했는지 확인합니다.")
+    @GetMapping("/daily/participation-status")
+    public ResponseEntity<ApiResponse<Boolean>> getTodayQuizParticipationStatus() {
+        Long memberId = SecurityUtil.getCurrentMemberId();
+        Boolean hasParticipated = quizService.hasParticipatedToday(memberId);
+        return ResponseEntity.ok(ApiResponse.success(hasParticipated, 
+            hasParticipated ? "오늘 퀴즈에 참여했습니다." : "오늘 퀴즈에 참여하지 않았습니다."));
+    }
 }

@@ -95,4 +95,11 @@ public class ChallengeRecord extends DateTimeEntity {
         this.verificationStatus = "REJECTED";
         this.verifiedAt = when;
     }
+    
+    public void updateVerificationStatus(String status) {
+        this.verificationStatus = status;
+        if ("VERIFIED".equals(status) || "APPROVED".equals(status)) {
+            this.verifiedAt = LocalDateTime.now();
+        }
+    }
 }
