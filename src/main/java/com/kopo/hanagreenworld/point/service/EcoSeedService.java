@@ -40,7 +40,7 @@ public class EcoSeedService {
     /**
      * 현재 사용자의 원큐씨앗 정보 조회
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public EcoSeedResponse getEcoSeedInfo() {
         Long memberId = SecurityUtil.getCurrentMemberId();
         MemberProfile profile = getOrCreateMemberProfile(memberId);
@@ -196,7 +196,7 @@ public class EcoSeedService {
     /**
      * 회원 프로필 정보 조회 (실시간 계산)
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public Map<String, Object> getMemberProfile() {
         Long memberId = SecurityUtil.getCurrentMemberId();
         MemberProfile profile = getOrCreateMemberProfile(memberId);
@@ -217,7 +217,7 @@ public class EcoSeedService {
     /**
      * 사용자 통계 정보 조회 (레벨, 탄소 절약량 등)
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public Map<String, Object> getUserStats() {
         Long memberId = SecurityUtil.getCurrentMemberId();
         MemberProfile profile = getOrCreateMemberProfile(memberId);
