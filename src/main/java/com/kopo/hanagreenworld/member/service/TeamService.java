@@ -198,6 +198,8 @@ public class TeamService {
 
         memberTeamRepository.save(memberTeam);
 
+        // 팀 가입 완료 (채팅은 팀이 활성화되면 자동으로 가능)
+
         // 팀 정보 반환
         TeamResponse.TeamStatsResponse stats = getTeamStats(team.getId());
         List<TeamResponse.EmblemResponse> emblems = getTeamEmblems(team.getId());
@@ -359,6 +361,111 @@ public class TeamService {
                 .rankChange(rankChange)
                 .build();
     }
+
+    /**
+     * 초대코드 검증
+     */
+    public TeamResponse validateInviteCode(String inviteCode) {
+        // 초대코드 파싱 (실제로는 초대코드 테이블에서 조회해야 함)
+        Long teamId = parseInviteCode(inviteCode);
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_INVITE_CODE));
+
+        if (!team.getIsActive()) {
+            throw new BusinessException(ErrorCode.TEAM_NOT_ACTIVE);
+        }
+
+        // 팀 정보 반환 (가입 전 미리보기)
+        TeamResponse.TeamStatsResponse stats = getTeamStats(team.getId());
+        List<TeamResponse.EmblemResponse> emblems = getTeamEmblems(team.getId());
+        
+        // 팀장 정보 조회
+        Member leader = memberRepository.findById(team.getLeaderId()).orElse(null);
+        
+        // 현재 진행 중인 챌린지 조회
+        Challenge currentChallenge = challengeRepository.findByIsActiveTrue().stream()
+                .findFirst()
+                .orElse(null);
+        
+        return TeamResponse.from(team, stats, emblems, leader, currentChallenge, 0);
+    }
+
+    /**
+     * 팀 목록 조회
+     */
+    public List<TeamResponse> getTeamList() {
+        List<Team> teams = teamRepository.findByIsActiveTrueOrderByTotalTeamPointsDesc();
+        
+        return teams.stream().map(team -> {
+            TeamResponse.TeamStatsResponse stats = getTeamStats(team.getId());
+            List<TeamResponse.EmblemResponse> emblems = getTeamEmblems(team.getId());
+            
+            // 팀장 정보 조회
+            Member leader = memberRepository.findById(team.getLeaderId()).orElse(null);
+            
+            // 현재 진행 중인 챌린지 조회
+            Challenge currentChallenge = challengeRepository.findByIsActiveTrue().stream()
+                    .findFirst()
+                    .orElse(null);
+            
+            return TeamResponse.from(team, stats, emblems, leader, currentChallenge, 0);
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * 팀 생성
+     */
+    @Transactional
+    public TeamResponse createTeam(TeamCreateRequest request) {
+        Member currentMember = SecurityUtil.getCurrentMember();
+        if (currentMember == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // 이미 팀에 속해있는지 확인
+        if (memberTeamRepository.findByMember_MemberIdAndIsActiveTrue(currentMember.getMemberId()).isPresent()) {
+            throw new BusinessException(ErrorCode.ALREADY_IN_TEAM);
+        }
+
+        // 팀 이름 중복 확인
+        if (teamRepository.findByTeamName(request.getTeamName()).isPresent()) {
+            throw new BusinessException(ErrorCode.TEAM_NAME_DUPLICATED);
+        }
+
+        // 팀 생성
+        Team team = Team.builder()
+                .teamName(request.getTeamName())
+                .description(request.getDescription())
+                .leaderId(currentMember.getMemberId())
+                .maxMembers(request.getMaxMembers() != null ? request.getMaxMembers() : 20)
+                .isActive(true)
+                .build();
+
+        Team savedTeam = teamRepository.save(team);
+
+        // 팀장을 팀에 추가
+        MemberTeam memberTeam = MemberTeam.builder()
+                .member(currentMember)
+                .team(savedTeam)
+                .role(MemberTeam.TeamRole.LEADER)
+                .build();
+
+        memberTeamRepository.save(memberTeam);
+
+        // 팀 생성 완료 (채팅은 팀이 활성화되면 자동으로 가능)
+
+        // 팀 정보 반환
+        TeamResponse.TeamStatsResponse stats = getTeamStats(savedTeam.getId());
+        List<TeamResponse.EmblemResponse> emblems = getTeamEmblems(savedTeam.getId());
+        
+        // 현재 진행 중인 챌린지 조회
+        Challenge currentChallenge = challengeRepository.findByIsActiveTrue().stream()
+                .findFirst()
+                .orElse(null);
+        
+        return TeamResponse.from(savedTeam, stats, emblems, currentMember, currentChallenge, 0);
+    }
+
 
     /**
      * 초대 코드 파싱 (임시 구현)

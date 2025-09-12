@@ -35,16 +35,18 @@ public class TeamChatController {
                            @Payload ChatMessageRequest request,
                            SimpMessageHeaderAccessor headerAccessor) {
         try {
-            log.info("메시지 전송 요청: 팀 ID = {}, 메시지 = {}", teamId, request.getMessageText());
+            log.info("📨 메시지 전송 요청: 팀 ID = {}, 메시지 = {}", teamId, request.getMessageText());
+            log.info("📨 세션 ID: {}, 헤더: {}", headerAccessor.getSessionId(), headerAccessor.toMap());
             
             // WebSocket 세션에서 사용자 정보 추출
             Member currentMember = getCurrentMemberFromSession(headerAccessor);
             if (currentMember == null) {
-                log.error("세션에서 사용자 정보를 찾을 수 없습니다. 세션 ID: {}", headerAccessor.getSessionId());
+                log.error("❌ 세션에서 사용자 정보를 찾을 수 없습니다. 세션 ID: {}", headerAccessor.getSessionId());
+                log.error("❌ 세션 속성: {}", headerAccessor.getSessionAttributes());
                 throw new RuntimeException("인증된 사용자 정보를 찾을 수 없습니다.");
             }
             
-            log.info("메시지 전송자: ID = {}, 이름 = {}", currentMember.getMemberId(), currentMember.getName());
+            log.info("✅ 메시지 전송자: ID = {}, 이름 = {}", currentMember.getMemberId(), currentMember.getName());
             
             // 메시지 전송 (사용자 정보를 직접 전달)
             ChatMessageResponse response = teamChatService.sendMessage(request, currentMember);
@@ -72,25 +74,34 @@ public class TeamChatController {
      */
     private Member getCurrentMemberFromSession(SimpMessageHeaderAccessor headerAccessor) {
         try {
+            log.info("🔍 세션에서 사용자 정보 추출 시도: 세션 ID = {}", headerAccessor.getSessionId());
+            log.info("🔍 세션 속성 키들: {}", headerAccessor.getSessionAttributes().keySet());
+            
             // 세션에서 저장된 사용자 정보 가져오기
             Object memberObj = headerAccessor.getSessionAttributes().get("MEMBER");
+            log.info("🔍 MEMBER 객체: {}", memberObj != null ? memberObj.getClass().getName() : "null");
+            
             if (memberObj instanceof Member) {
-                return (Member) memberObj;
+                Member member = (Member) memberObj;
+                log.info("✅ 세션에서 Member 정보 추출 성공: ID = {}, 이름 = {}", member.getMemberId(), member.getName());
+                return member;
             }
             
             // Principal에서 사용자 정보 가져오기
             Principal principal = headerAccessor.getUser();
+            log.info("🔍 Principal 객체: {}", principal != null ? principal.getClass().getName() : "null");
+            
             if (principal != null && principal instanceof org.springframework.security.core.userdetails.UserDetails) {
                 // Principal이 UserDetails인 경우 Member로 변환
                 // 이 경우는 일반적이지 않으므로 로그만 남김
                 log.warn("Principal이 UserDetails 타입입니다: {}", principal.getClass().getName());
             }
             
-            log.warn("세션에서 Member 정보를 찾을 수 없습니다. 세션 ID: {}", headerAccessor.getSessionId());
+            log.warn("❌ 세션에서 Member 정보를 찾을 수 없습니다. 세션 ID: {}", headerAccessor.getSessionId());
             return null;
             
         } catch (Exception e) {
-            log.error("세션에서 사용자 정보 추출 중 오류 발생: {}", e.getMessage());
+            log.error("❌ 세션에서 사용자 정보 추출 중 오류 발생: {}", e.getMessage(), e);
             return null;
         }
     }
