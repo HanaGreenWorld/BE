@@ -81,5 +81,10 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
         AND t.isActive = true
         """)
     Optional<Team> findByMemberId(@Param("memberId") Long memberId);
+    
+    /**
+     * 활성화된 팀들을 총 팀 포인트 순으로 조회
+     */
+    List<Team> findByIsActiveTrueOrderByTotalTeamPointsDesc();
 }
 

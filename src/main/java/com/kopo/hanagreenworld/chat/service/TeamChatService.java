@@ -19,8 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-
-import java.util.ArrayList;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,9 +58,10 @@ public class TeamChatService {
         Team team = teamRepository.findById(request.getTeamId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_FOUND));
 
-        // 채팅 설정 확인
-        TeamChatSettings settings = settingsRepository.findByTeamIdAndIsChatActiveTrue(request.getTeamId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.TEAM_CHAT_DISABLED));
+        // 팀이 활성화되어 있는지 확인
+        if (!team.getIsActive()) {
+            throw new BusinessException(ErrorCode.TEAM_NOT_ACTIVE);
+        }
 
         // 메시지 생성
         TeamChatMessage message = TeamChatMessage.builder()
@@ -82,10 +81,6 @@ public class TeamChatService {
         ChatMessageResponse response = ChatMessageResponse.from(message);
         cacheMessage(request.getTeamId(), response);
 
-        // 채팅 설정 업데이트
-        settings.updateLastMessage(redisMessageId, LocalDateTime.now());
-        settingsRepository.save(settings);
-
         log.info("메시지 전송 완료: 팀 ID = {}, 발신자 = {}, 메시지 ID = {}", 
                 request.getTeamId(), currentMember.getName(), message.getId());
 
@@ -96,49 +91,23 @@ public class TeamChatService {
      * 팀 채팅 메시지 조회
      */
     public List<ChatMessageResponse> getTeamMessages(Long teamId, Member currentMember) {
-        try {
-            if (currentMember == null) {
-                log.error("현재 사용자 정보가 null입니다.");
-                throw new BusinessException(ErrorCode.UNAUTHORIZED);
-            }
-
-            if (teamId == null) {
-                log.error("팀 ID가 null입니다.");
-                throw new BusinessException(ErrorCode.TEAM_NOT_FOUND);
-            }
-
-            // 팀 존재 여부 확인
-            Team team = teamRepository.findById(teamId)
-                    .orElse(null);
-            
-            if (team == null) {
-                log.error("팀을 찾을 수 없습니다: {}", teamId);
-                throw new BusinessException(ErrorCode.TEAM_NOT_FOUND);
-            }
-
-            // 최근 50개 메시지 조회 (최신순)
-            Pageable pageable = PageRequest.of(0, 50);
-            Page<TeamChatMessage> messages = messageRepository.findByTeamIdAndIsDeletedFalseOrderByCreatedAtDesc(teamId, pageable);
-            
-            if (messages == null || messages.getContent() == null) {
-                log.warn("메시지 조회 결과가 null입니다. 빈 리스트를 반환합니다.");
-                return new ArrayList<>();
-            }
-            
-            // 시간순으로 정렬하여 반환 (오래된 것부터)
-            return messages.getContent().stream()
-                    .filter(message -> message != null) // null 메시지 필터링
-                    .sorted((a, b) -> a.getCreatedAt().compareTo(b.getCreatedAt()))
-                    .map(ChatMessageResponse::from)
-                    .toList();
-                    
-        } catch (BusinessException e) {
-            log.error("비즈니스 예외 발생: {}", e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            log.error("팀 메시지 조회 중 예외 발생: {}", e.getMessage(), e);
-            throw new RuntimeException("팀 메시지 조회 중 오류가 발생했습니다.");
+        if (currentMember == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
+
+        // 팀 존재 여부 확인
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_FOUND));
+
+        // 최근 50개 메시지 조회 (최신순)
+        Pageable pageable = PageRequest.of(0, 50);
+        Page<TeamChatMessage> messages = messageRepository.findByTeamIdAndIsDeletedFalseOrderByCreatedAtDesc(teamId, pageable);
+        
+        // 시간순으로 정렬하여 반환 (오래된 것부터)
+        return messages.getContent().stream()
+                .sorted((a, b) -> a.getCreatedAt().compareTo(b.getCreatedAt()))
+                .map(ChatMessageResponse::from)
+                .toList();
     }
 
     /**

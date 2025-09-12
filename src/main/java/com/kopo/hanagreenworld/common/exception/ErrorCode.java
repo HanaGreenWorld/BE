@@ -50,6 +50,7 @@ public enum ErrorCode {
     INVALID_INVITE_CODE(400, "TM_004", "유효하지 않은 초대 코드입니다."),
     TEAM_NOT_ACTIVE(400, "TM_005", "비활성화된 팀입니다."),
     TEAM_FULL(400, "TM_006", "팀원 수가 가득 찼습니다."),
+    TEAM_NAME_DUPLICATED(400, "TM_007", "이미 사용 중인 팀 이름입니다."),
     UNAUTHORIZED(401, "AU_007", "인증이 필요합니다."),
 
     // 채팅 관련 에러
